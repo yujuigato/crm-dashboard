@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRM 智慧查詢儀表板｜Streamlit CRM Dashboard</title>
+  <style>
+    :root{--primary:#1d4ed8;--primary-light:#eff6ff;--success:#059669;--bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--text:#0f172a;--text-muted:#64748b;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.8;}
+    header{background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 50%,#059669 100%);color:white;padding:72px 40px 56px;text-align:center;position:relative;overflow:hidden;}
+    header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+    .hero-tag{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 16px;font-size:.85rem;letter-spacing:.05em;margin-bottom:16px;}
+    header h1{font-size:2.4rem;font-weight:800;margin-bottom:16px;line-height:1.2;}
+    header h1 span{color:#93c5fd;}
+    header .subtitle{font-size:1.1rem;opacity:.85;max-width:640px;margin:0 auto 28px;}
+    .tech-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:32px;}
+    .tech-pill{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:6px 16px;font-size:.85rem;font-weight:500;}
+    .hero-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;padding-top:24px;border-top:1px solid rgba(255,255,255,0.2);}
+    .hero-stat .num{font-size:2rem;font-weight:800;}
+    .hero-stat .lbl{font-size:.8rem;opacity:.75;margin-top:2px;}
+    main{max-width:960px;margin:0 auto;padding:48px 24px;}
+    section{margin-bottom:56px;}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);margin-bottom:8px;}
+    h2{font-size:1.65rem;font-weight:800;color:var(--text);margin-bottom:8px;}
+    .section-desc{font-size:1rem;color:var(--text-muted);margin-bottom:24px;max-width:680px;}
+    h3{font-size:1.05rem;font-weight:700;margin:20px 0 8px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+    .problem-card{border-left:4px solid #dc2626;background:#fff5f5;}
+    .solution-card{border-left:4px solid var(--success);background:#f0fdf4;}
+    .problem-card h3{color:#dc2626;}
+    .solution-card h3{color:var(--success);}
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+    .feature-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;}
+    .feature-icon{font-size:1.5rem;margin-bottom:8px;}
+    .feature-card h4{font-weight:700;font-size:.95rem;margin-bottom:6px;}
+    .feature-card p{font-size:.85rem;color:var(--text-muted);}
+    table{width:100%;border-collapse:collapse;font-size:.92rem;}
+    th{background:#f1f5f9;padding:10px 14px;text-align:left;font-weight:600;border-bottom:2px solid var(--border);}
+    td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:#f8fafc;}
+    .tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.8rem;font-weight:600;}
+    .tag-blue{background:#dbeafe;color:#1e40af;}
+    .tag-green{background:#dcfce7;color:#166534;}
+    .tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+    .tech-item{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+    .tech-icon{font-size:1.5rem;flex-shrink:0;}
+    .tech-name{font-weight:700;font-size:.9rem;}
+    .tech-desc{font-size:.8rem;color:var(--text-muted);}
+    footer{text-align:center;padding:40px 24px;color:var(--text-muted);font-size:.85rem;border-top:1px solid var(--border);}
+    footer a{color:var(--primary);text-decoration:none;}
+  </style>
+</head>
+<body>
+<header>
+  <div class="hero-tag">📊 Streamlit × SQL Server × 非技術使用者</div>
+  <h1>CRM 智慧查詢儀表板<br><span>Streamlit CRM Dashboard</span></h1>
+  <p class="subtitle">讓非技術背景的業務與管理人員，透過視覺化介面直接查詢 SQL Server CRM 資料，無需撰寫任何 SQL</p>
+  <div class="tech-pills">
+    <span class="tech-pill">Python</span>
+    <span class="tech-pill">Streamlit</span>
+    <span class="tech-pill">SQL Server</span>
+    <span class="tech-pill">Pandas</span>
+    <span class="tech-pill">openpyxl</span>
+    <span class="tech-pill">ODBC</span>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">零 SQL</div><div class="lbl">不需要寫程式</div></div>
+    <div class="hero-stat"><div class="num">多分頁</div><div class="lbl">各類查詢功能</div></div>
+    <div class="hero-stat"><div class="num">CSV/Excel</div><div class="lbl">一鍵匯出</div></div>
+    <div class="hero-stat"><div class="num">內網部署</div><div class="lbl">企業安全架構</div></div>
+  </div>
+</header>
+<main>
+
+<section>
+  <div class="section-label">Background</div>
+  <h2>這個系統在解決什麼問題？</h2>
+  <p class="section-desc">CRM 資料的價值完全被鎖在資料庫裡，只有技術人員才能取用。業務主管需要查詢客戶資料卻要等工程師幫忙跑報表。</p>
+  <div class="card-grid">
+    <div class="card problem-card">
+      <h3>😣 過去的痛點</h3>
+      <ul style="padding-left:18px;font-size:.92rem;color:#374151;margin-top:8px;">
+        <li style="margin-bottom:8px">業務要查客戶資料，需要請工程師寫 SQL</li>
+        <li style="margin-bottom:8px">一次性報表需求多，工程師疲於應付</li>
+        <li style="margin-bottom:8px">報表格式固定，無法彈性篩選條件</li>
+        <li>資料取得不即時，影響業務決策速度</li>
+      </ul>
+    </div>
+    <div class="card solution-card">
+      <h3>✅ 系統如何解決</h3>
+      <ul style="padding-left:18px;font-size:.92rem;color:#374151;margin-top:8px;">
+        <li style="margin-bottom:8px">Streamlit 視覺化介面，業務自助查詢</li>
+        <li style="margin-bottom:8px">多分頁設計，覆蓋各類常用查詢需求</li>
+        <li style="margin-bottom:8px">篩選條件彈性調整，即時回傳結果</li>
+        <li>一鍵匯出 CSV / Excel，直接使用</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">Features</div>
+  <h2>主要功能</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h4>多條件查詢</h4>
+      <p>客戶名稱、地區、業務員、日期範圍等條件自由組合，即時篩選</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h4>多分頁設計</h4>
+      <p>商機查詢、日報查詢、活動查詢等各類需求分頁呈現</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📥</div>
+      <h4>一鍵匯出</h4>
+      <p>查詢結果直接下載為 CSV 或 Excel，格式整齊可用</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h4>內網部署</h4>
+      <p>部署於內部伺服器，資料不對外，符合企業資安要求</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h4>自動啟動</h4>
+      <p>Windows 開機自動啟動服務，業務隨時可用</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🖥️</div>
+      <h4>無需安裝</h4>
+      <p>瀏覽器開啟即用，不需要在每台電腦安裝任何軟體</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">Architecture</div>
+  <h2>系統架構</h2>
+  <div class="card">
+    <table>
+      <tr><th>層次</th><th>技術</th><th>說明</th></tr>
+      <tr><td><span class="tag tag-blue">前端</span></td><td>Streamlit</td><td>純 Python 建立互動介面，無需 HTML/JS</td></tr>
+      <tr><td><span class="tag tag-blue">後端</span></td><td>Python + SQLAlchemy</td><td>查詢邏輯、資料轉換、匯出處理</td></tr>
+      <tr><td><span class="tag tag-blue">資料庫</span></td><td>SQL Server (ODBC)</td><td>CRM 核心資料，透過 ODBC Driver 17 連線</td></tr>
+      <tr><td><span class="tag tag-green">部署</span></td><td>Windows Service</td><td>內部伺服器常駐，開機自動啟動</td></tr>
+      <tr><td><span class="tag tag-green">設定</span></td><td>configparser .ini</td><td>帳密與連線資訊外部設定，不入版控</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">Tech Stack</div>
+  <h2>技術選型</h2>
+  <div class="tech-grid">
+    <div class="tech-item"><div class="tech-icon">🎯</div><div><div class="tech-name">Streamlit</div><div class="tech-desc">純 Python 快速建立 Web UI，無需前端知識</div></div></div>
+    <div class="tech-item"><div class="tech-icon">🗄️</div><div><div class="tech-name">SQL Server + pyodbc</div><div class="tech-desc">ODBC Driver 17，穩定連線企業 CRM 資料庫</div></div></div>
+    <div class="tech-item"><div class="tech-icon">🐍</div><div><div class="tech-name">Pandas</div><div class="tech-desc">查詢結果資料處理與格式化</div></div></div>
+    <div class="tech-item"><div class="tech-icon">📋</div><div><div class="tech-name">openpyxl</div><div class="tech-desc">Excel 格式匯出，保留欄位格式</div></div></div>
+    <div class="tech-item"><div class="tech-icon">⚙️</div><div><div class="tech-name">configparser</div><div class="tech-desc">外部 .ini 設定檔，帳密不寫入程式碼</div></div></div>
+    <div class="tech-item"><div class="tech-icon">🪟</div><div><div class="tech-name">Windows 排程</div><div class="tech-desc">開機自動啟動 Streamlit 服務</div></div></div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <p>CRM 智慧查詢儀表板 &nbsp;|&nbsp; Built with Python + Streamlit + SQL Server &nbsp;|&nbsp; <a href="https://github.com/yujuigato/crm-dashboard">GitHub</a></p>
+  <p style="margin-top:6px;">最後更新：2026-06-12</p>
+</footer>
+</body>
+</html>
