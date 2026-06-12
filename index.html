@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRM 智慧查詢儀表板｜Streamlit CRM Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root{--primary:#1d4ed8;--primary-light:#eff6ff;--success:#059669;--warning:#d97706;--danger:#dc2626;--bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--text:#0f172a;--text-muted:#64748b;--text-light:#94a3b8;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.8;}
+    header{background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 50%,#059669 100%);color:white;padding:72px 40px 56px;text-align:center;position:relative;overflow:hidden;}
+    header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+    .hero-tag{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 16px;font-size:.85rem;letter-spacing:.05em;margin-bottom:16px;}
+    header h1{font-size:2.4rem;font-weight:800;margin-bottom:16px;line-height:1.2;}
+    header h1 span{color:#bfdbfe;}
+    header .subtitle{font-size:1.1rem;opacity:.85;max-width:640px;margin:0 auto 28px;}
+    .tech-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:32px;}
+    .tech-pill{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:6px 16px;font-size:.85rem;font-weight:500;}
+    .hero-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;padding-top:24px;border-top:1px solid rgba(255,255,255,0.2);}
+    .hero-stat .num{font-size:2rem;font-weight:800;}
+    .hero-stat .lbl{font-size:.8rem;opacity:.75;margin-top:2px;}
+    main{max-width:960px;margin:0 auto;padding:48px 24px;}
+    section{margin-bottom:56px;}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);margin-bottom:8px;}
+    h2{font-size:1.65rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.3;}
+    .section-desc{font-size:1rem;color:var(--text-muted);margin-bottom:24px;max-width:680px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+    .problem-card{border-left:4px solid var(--danger);background:#fff5f5;}
+    .solution-card{border-left:4px solid var(--success);background:#f0fdf4;}
+    .problem-card h3{color:var(--danger);}
+    .solution-card h3{color:var(--success);}
+    h3{font-size:1.05rem;font-weight:700;margin:20px 0 8px;}
+    .highlight-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #93c5fd;border-radius:12px;padding:20px 24px;margin-bottom:20px;}
+    .highlight-box h3{color:#1d4ed8;margin-top:0;}
+    .steps{display:flex;flex-direction:column;}
+    .step{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid var(--border);}
+    .step:last-child{border-bottom:none;}
+    .step-left{display:flex;flex-direction:column;align-items:center;min-width:40px;}
+    .step-num{width:36px;height:36px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0;}
+    .step-line{width:2px;background:var(--border);flex:1;min-height:20px;margin-top:6px;}
+    .step:last-child .step-line{display:none;}
+    .step-body h4{font-weight:700;font-size:1rem;margin-bottom:4px;}
+    .step-body p{font-size:.9rem;color:var(--text-muted);}
+    .step-detail{background:#f8fafc;border-radius:8px;padding:10px 14px;font-size:.85rem;color:#475569;margin-top:8px;border:1px solid var(--border);}
+    .mermaid{background:white;border-radius:10px;padding:20px;margin:12px 0;overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:.92rem;}
+    th{background:#f1f5f9;padding:10px 14px;text-align:left;font-weight:600;border-bottom:2px solid var(--border);}
+    td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:#f8fafc;}
+    .tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.8rem;font-weight:600;}
+    .tag-blue{background:#dbeafe;color:#1e40af;}
+    .tag-green{background:#dcfce7;color:#166534;}
+    .tag-orange{background:#ffedd5;color:#9a3412;}
+    .challenge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
+    .challenge-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;}
+    .challenge-item .ch-label{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--warning);margin-bottom:6px;}
+    .challenge-item h4{font-weight:700;font-size:.95rem;margin-bottom:6px;}
+    .challenge-item p{font-size:.87rem;color:var(--text-muted);}
+    .arrow{text-align:center;font-size:1.2rem;color:var(--success);margin:4px 0;}
+    .challenge-item .solution{font-size:.87rem;color:var(--success);font-weight:600;}
+    .tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+    .tech-item{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+    .tech-icon{font-size:1.5rem;flex-shrink:0;}
+    .tech-name{font-weight:700;font-size:.9rem;}
+    .tech-desc{font-size:.8rem;color:var(--text-muted);}
+    footer{text-align:center;padding:40px 24px;color:var(--text-muted);font-size:.85rem;border-top:1px solid var(--border);}
+    footer a{color:var(--primary);text-decoration:none;}
+  </style>
+</head>
+<body>
+<header>
+  <div class="hero-tag">🖥️ Streamlit × SQL Server × 零 SQL 自助查詢</div>
+  <h1>CRM 智慧查詢<br><span>儀表板</span></h1>
+  <p class="subtitle">讓業務主管不需要懂 SQL，也能即時查詢 CRM 客戶資料、進行多條件篩選、一鍵匯出報表，內網部署開機自動啟動</p>
+  <div class="tech-pills">
+    <span class="tech-pill">Python</span>
+    <span class="tech-pill">Streamlit</span>
+    <span class="tech-pill">SQL Server</span>
+    <span class="tech-pill">Pandas</span>
+    <span class="tech-pill">NSSM Windows 服務</span>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">零 SQL</div><div class="lbl">業務自助查詢</div></div>
+    <div class="hero-stat"><div class="num">即時</div><div class="lbl">多條件篩選</div></div>
+    <div class="hero-stat"><div class="num">一鍵</div><div class="lbl">匯出 CSV/Excel</div></div>
+    <div class="hero-stat"><div class="num">開機</div><div class="lbl">自動啟動服務</div></div>
+  </div>
+</header>
+<main>
+
+<section>
+  <div class="section-label">Background</div>
+  <h2>這個工具在解決什麼問題？</h2>
+  <p class="section-desc">業務主管需要頻繁查詢 CRM 資料（客戶清單、跟進狀態、業務分佈），但每次都要請工程師幫忙寫 SQL，等待耗時且無法即時回應業務需求。</p>
+  <div class="card-grid">
+    <div class="card problem-card">
+      <h3>😣 過去的痛點</h3>
+      <ul style="padding-left:18px;font-size:.92rem;color:#374151;margin-top:8px;">
+        <li style="margin-bottom:8px">每次查詢需要請工程師寫 SQL，回應時間以天計算</li>
+        <li style="margin-bottom:8px">主管無法即時依業務情境調整查詢條件</li>
+        <li style="margin-bottom:8px">查詢結果以 email 傳送，格式不統一、版本混亂</li>
+        <li>報表匯出需要工程師介入，主管無法自主掌控</li>
+      </ul>
+    </div>
+    <div class="card solution-card">
+      <h3>✅ 工具如何解決</h3>
+      <ul style="padding-left:18px;font-size:.92rem;color:#374151;margin-top:8px;">
+        <li style="margin-bottom:8px">Streamlit GUI 介面，業務拉選單即可多條件組合查詢</li>
+        <li style="margin-bottom:8px">直連 SQL Server，查詢即時回傳（秒級）</li>
+        <li style="margin-bottom:8px">結果一鍵匯出 CSV 或 Excel，格式固定統一</li>
+        <li>Windows 服務，電腦開機即可在瀏覽器存取，無需啟動任何程式</li>
+      </ul>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:16px;">
+    <h3>為什麼選 Streamlit，而不是 Power BI 或 Excel？</h3>
+    <p style="font-size:.92rem;color:#1e3a8a;">Power BI 需授權費用且部署複雜；Excel 連線 SQL 需要設定繁瑣、IT 審核周期長。Streamlit 以 Python 開發，2 小時內從零完成部署，內網環境直接啟動，<strong>無需任何額外授權或 IT 申請流程</strong>。</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">How It Works</div>
+  <h2>系統如何運作？</h2>
+  <div class="card" style="margin-bottom:24px;">
+    <div class="mermaid">
+flowchart TD
+    A["👤 業務主管\n打開瀏覽器"] --> B["Streamlit UI\n選擇篩選條件\n業務員/地區/狀態/日期"]
+    B --> C["Python 動態組 SQL\n依選項生成 WHERE 子句"]
+    C --> D["SQL Server CRM 資料庫\n直連查詢"]
+    D --> E["Pandas 結果處理\n格式化 / 加總 / 排序"]
+    E --> F["Streamlit Table\n即時顯示結果"]
+    F --> G{下載格式}
+    G --> H["📄 CSV 匯出"]
+    G --> I["📊 Excel 匯出"]
+    J["Windows NSSM 服務\n開機自動啟動"] -.->|維持運行| B
+    style D fill:#1d4ed8,color:#fff
+    style J fill:#059669,color:#fff
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-left"><div class="step-num">1</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <h4>業務打開瀏覽器</h4>
+        <p>Streamlit 以 Windows 服務方式運行，電腦開機後在內網瀏覽器直接輸入 IP 即可存取，不需要啟動任何程式。</p>
+        <div class="step-detail">NSSM（Non-Sucking Service Manager）將 Streamlit 包裝成 Windows 服務，開機自動啟動</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">2</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <h4>拉選單組合條件</h4>
+        <p>多維度篩選器：業務員姓名、客戶地區、跟進狀態、日期範圍、業務階段等，可任意組合，不限制條件數量。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">3</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <h4>Python 動態生成 SQL</h4>
+        <p>後端依使用者選擇動態組合 SQL WHERE 子句，使用參數化查詢避免 SQL Injection，直連 SQL Server 執行。</p>
+        <div class="step-detail">每次查詢都是即時連線，確保資料為最新狀態，無快取造成的資料延遲</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">4</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <h4>即時回傳 + 匯出</h4>
+        <p>結果以 Streamlit Table 即時顯示，含分頁、排序功能。一鍵匯出 CSV 或 Excel，直接作為業務報表使用。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">Engineering Challenges</div>
+  <h2>解決了哪些技術難題？</h2>
+  <div class="challenge-grid">
+    <div class="challenge-item">
+      <div class="ch-label">Challenge 1</div>
+      <h4>SQL Injection 安全防護</h4>
+      <p>使用者選單的值直接拼接進 SQL 字串，是 SQL Injection 的高風險點，尤其在內網環境容易被忽略。</p>
+      <div class="arrow">↓ 解決方案</div>
+      <p class="solution">全程使用 parameterized query（佔位符 + params tuple），禁止字串拼接，SQL 結構固定、參數值由驅動層傳入</p>
+    </div>
+    <div class="challenge-item">
+      <div class="ch-label">Challenge 2</div>
+      <h4>Windows 開機自動啟動</h4>
+      <p>Streamlit 是 Python 程序，無法直接設為 Windows 服務；排程任務在使用者未登入時無法執行。</p>
+      <div class="arrow">↓ 解決方案</div>
+      <p class="solution">NSSM 將 Python Streamlit 包裝成系統服務，以 SYSTEM 帳戶執行，開機後不需要使用者登入即可在背景持續運行</p>
+    </div>
+    <div class="challenge-item">
+      <div class="ch-label">Challenge 3</div>
+      <h4>動態 SQL 條件組合</h4>
+      <p>使用者可能勾選任意組合的篩選條件（0 到 N 個），固定 SQL 無法應對，但完全動態生成又難以維護。</p>
+      <div class="arrow">↓ 解決方案</div>
+      <p class="solution">條件清單動態累積，僅在使用者實際選擇值時加入 WHERE 子句；固定骨架 SQL + 動態條件拼接，確保結構安全</p>
+    </div>
+    <div class="challenge-item">
+      <div class="ch-label">Challenge 4</div>
+      <h4>大量資料的響應速度</h4>
+      <p>CRM 資料量大，若每次操作都全量撈取再前端篩選，響應速度無法接受，使用者體驗差。</p>
+      <div class="arrow">↓ 解決方案</div>
+      <p class="solution">篩選邏輯在 SQL 層完成（資料庫端過濾），只回傳符合條件的結果集；Streamlit cache 對不常變動的選單資料進行快取</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">Features</div>
+  <h2>功能總覽</h2>
+  <div class="card">
+    <table>
+      <tr><th>功能模組</th><th>說明</th><th>使用場景</th></tr>
+      <tr>
+        <td><span class="tag tag-blue">多條件篩選</span></td>
+        <td>業務員 / 地區 / 狀態 / 日期範圍，任意組合</td>
+        <td>主管查看特定業務員本季成績</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">即時查詢</span></td>
+        <td>直連 SQL Server，秒級回傳</td>
+        <td>會議中即時查詢特定客戶資料</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">CSV / Excel 匯出</span></td>
+        <td>一鍵下載，格式固定統一</td>
+        <td>週報、月報資料準備</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">統計摘要</span></td>
+        <td>查詢結果自動顯示筆數、加總、平均</td>
+        <td>快速掌握業績數字</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">欄位排序</span></td>
+        <td>點擊欄位標題即可排序</td>
+        <td>依金額或日期排序找出重點客戶</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">開機自啟</span></td>
+        <td>NSSM Windows 服務，電腦開機即可用</td>
+        <td>日常使用不需要任何啟動動作</td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">Tech Stack</div>
+  <h2>技術選型</h2>
+  <div class="tech-grid">
+    <div class="tech-item"><div class="tech-icon">🌐</div><div><div class="tech-name">Streamlit</div><div class="tech-desc">Python 原生 Web UI，快速開發互動式資料應用</div></div></div>
+    <div class="tech-item"><div class="tech-icon">🗄️</div><div><div class="tech-name">SQL Server + pyodbc</div><div class="tech-desc">直連企業 CRM 資料庫，參數化查詢確保安全</div></div></div>
+    <div class="tech-item"><div class="tech-icon">🐼</div><div><div class="tech-name">Pandas</div><div class="tech-desc">查詢結果格式化、加總計算、Excel 匯出</div></div></div>
+    <div class="tech-item"><div class="tech-icon">🔧</div><div><div class="tech-name">NSSM</div><div class="tech-desc">Windows 服務包裝器，讓 Python 應用開機自啟</div></div></div>
+    <div class="tech-item"><div class="tech-icon">🔒</div><div><div class="tech-name">Parameterized Query</div><div class="tech-desc">SQL Injection 防護，使用者輸入透過參數傳遞</div></div></div>
+    <div class="tech-item"><div class="tech-icon">📊</div><div><div class="tech-name">openpyxl</div><div class="tech-desc">Excel 格式匯出，支援格式化與多 Sheet</div></div></div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <p>CRM 智慧查詢儀表板 &nbsp;|&nbsp; Built with Python + Streamlit + SQL Server &nbsp;|&nbsp; <a href="https://github.com/yujuigato/crm-dashboard">GitHub</a></p>
+</footer>
+<script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#dbeafe',primaryTextColor:'#1e3a8a',primaryBorderColor:'#60a5fa',lineColor:'#64748b'},flowchart:{curve:'monotoneX'}});</script>
+</body>
+</html>
